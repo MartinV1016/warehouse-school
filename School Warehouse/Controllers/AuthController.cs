@@ -24,7 +24,9 @@ public class AuthController : ControllerBase
     private readonly IConfiguration _configuration;
 
     public AuthController(WarehouseDbContext context, IConfiguration configuration)
-	{ _context = context; }	
+	{ _context = context;
+      _configuration = configuration;
+    }	
 
 	[HttpPost("login")]
     public async Task<IActionResult> Login([FromBody] Login request)
