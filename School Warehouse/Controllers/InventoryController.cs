@@ -5,30 +5,37 @@ using System.Security.Claims;
 using WarehouseAPI.DTOs;
 using WarehouseAPI.Models;
 using WarehouseAPI.Data;
+using WarehouseAPI.Services;
 
 [ApiController]
 [Route("[controller]")]
 [Authorize]
 public class InventoryController : ControllerBase
 {
-	/*private static List<Item> inventory = new()
+    /*private static List<Item> inventory = new()
 	{
 		new Item { Id = 1, Name = "Pens", Category = "stationery", Quantity = 100, Location="A-03-D-05" },
 		new Item { Id = 2, Name = "Laptops", Category = "electronics", Quantity = 20, Location="C-01-B-02" }
 	};*/
-
-	private readonly WarehouseDbContext _context;
+    /*private readonly WarehouseDbContext _context;
 
 	public InventoryController(WarehouseDbContext context)
 	{
 		_context = context;
-	}
+	}*/
 
-	[HttpGet]
+    private readonly IInventoryService _inventoryService;
+
+    public InventoryController(IInventoryService inventoryService)
+    {
+        _inventoryService = inventoryService;
+    }
+
+    [HttpGet]
 	public async Task<IActionResult> GetAll()
-	{
+    {
 		/*var response = ApiResponse<List<Item>>.Success(inventory,"Inventory retrieved");*/
-		var items=await _context.Items.ToListAsync();
+		var items=await _inventoryService.GetAllItemsAsync();
 		return Ok(items);
 	}
 
@@ -36,16 +43,8 @@ public class InventoryController : ControllerBase
 	[Authorize(Roles="admin")]
 	public async Task<IActionResult> CreateItem([FromBody] ItemCreateDto request)
 	{
-		var newItem = new Item
-		{
-			Name = request.Name,
-			Category = request.Category,
-			Quantity = request.Quantity,
-			Location = request.Location
-		};
+		var newItem = await _inventoryService.CreateItemAsync(request);
 		
-		await _context.Items.AddAsync(newItem);
-		await _context.SaveChangesAsync();
 		return CreatedAtAction(nameof(GetAll),new {id=newItem.Id},newItem);
 	}
 	
@@ -75,18 +74,11 @@ public class InventoryController : ControllerBase
 	[Authorize(Roles = "admin")]
 	public async Task<IActionResult> Update(int id, [FromBody] ItemUpdateDto request)
 	{
-		var item=await _context.Items.FirstOrDefaultAsync(i=>i.Id==id);
+		var item=await _inventoryService.UpdateItemAsync(id,request);
 		if (item == null)
 		{
 			return NotFound($"Item with id {id} not found");
 		}
-
-		item.Name=request.Name;
-		item.Category=request.Category;
-		item.Quantity=request.Quantity;
-		item.Location=request.Location;
-
-		await _context.SaveChangesAsync();
 
 		return Ok(item);
 	}
@@ -118,16 +110,12 @@ public class InventoryController : ControllerBase
 	[Authorize(Roles = "admin")]
 	public async Task<IActionResult> Delete(int id)
 	{
-        var item = await _context.Items.FirstOrDefaultAsync(i => i.Id == id);
-        if (item == null)
+        var success = await _inventoryService.DeleteItemAsync(id);
+        if (!success)
         {
             return NotFound($"Deletion failed. Item with ID {id} not found.");
-        }
-
-        _context.Items.Remove(item);
-        await _context.SaveChangesAsync();
-
-        return Ok(new { message = $"Successfully deleted '{item.Name}'" });
+        }	
+        return Ok(new { message = $"Successfully deleted item" });
     }
 
 	/*public IActionResult Delete(int id)
