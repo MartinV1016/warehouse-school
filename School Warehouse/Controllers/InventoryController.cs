@@ -10,18 +10,19 @@ public class InventoryController : ControllerBase
 {
 	private static List<Item> inventory = new()
 	{
-		new Item { Id = 1, Name = "Pens", Category = "stationery", Quantity = 100 },
-		new Item { Id = 2, Name = "Laptops", Category = "electronics", Quantity = 20 }
+		new Item { Id = 1, Name = "Pens", Category = "stationery", Quantity = 100, Location="A-03-D-05" },
+		new Item { Id = 2, Name = "Laptops", Category = "electronics", Quantity = 20, Location="C-01-B-02" }
 	};
 
 	[HttpGet]
 	public IActionResult GetAll()
 	{
+		var response = ApiResponse<List<Item>>.Success(inventory,"Inventory retrieved");
 		return Ok(inventory);
 	}
 
 	[HttpPost]
-	public IActionResult Add(itemCreateDto request)
+	public IActionResult Add(ItemCreateDto request)
 	{
 		var role = User.FindFirst(ClaimTypes.Role)?.Value;
 
@@ -33,44 +34,55 @@ public class InventoryController : ControllerBase
 			Id = inventory.Count + 1,
 			Name = request.Name,
 			Category = request.Category.ToLower(),
-			Quantity = request.Quantity
+			Quantity = request.Quantity,
+			Location = request.Location
 		};
 
 		
-		inventory.Add(newitem);
+		inventory.Add(newItem);
 
-		return Ok(newitem);
+		return Ok(newItem);
 	}
 
 	[HttpPut("{id}")]
-	public IActionResult Update(int id, ItemUpdateDTO request)
+	[Authorize(Roles = "admin")]
+	public IActionResult Update(int id, ItemUpdateDto request)
 	{
 		var item = inventory.FirstOrDefault(i => i.Id == id);
-		if (item == null) return NotFound();
+		if (item == null) 
+		{ 
+			return NotFound(ApiResponse<object>.Fail($"Item with ID {id} was not found")); 
+		}
 
-		var role = User.FindFirst(ClaimTypes.Role)?.Value;
+		/*var role = User.FindFirst(ClaimTypes.Role)?.Value;
 
 		if (role != "admin" && role != item.Category)
-			return Forbid();
+			return Forbid();*/
 
 		item.Name = request.Name;
+		item.Category = request.Category;
 		item.Quantity = request.Quantity;
+		item.Location = request.Location;
 
-		return Ok(item);
+
+		var response = ApiResponse<object>.Success(item, $"Item '{item.Name}' updated sucessfully.");
+		return Ok(response);
 	}
 
 	[HttpDelete("{id}")]
+	[Authorize(Roles = "admin")]
 	public IActionResult Delete(int id)
 	{
-		var role = User.FindFirst(ClaimTypes.Role)?.Value;
+		/*var role = User.FindFirst(ClaimTypes.Role)?.Value;
 
 		if (role != "admin")
-			return Forbid();
+			return Forbid();*/
 
 		var item = inventory.FirstOrDefault(i => i.Id == id);
-		if (item == null) return NotFound();
+		if (item == null) return NotFound(ApiResponse<object>.Fail($"Deletion failed. Item with {id} id not found"));
 
 		inventory.Remove(item);
-		return Ok();
+		var response = ApiResponse<object>.Success("Deleted", $"Sucessfully deleted '{item.Name}'");
+		return Ok(response);
 	}
 }
