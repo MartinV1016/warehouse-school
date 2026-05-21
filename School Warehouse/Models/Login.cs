@@ -1,5 +1,8 @@
-public class Login
-{
-    public string Username { get; set; }
-    public string Password { get; set; }
+namespace WarehouseAPI.Models {
+
+    public class Login
+    {
+        public string Username { get; set; }
+        public string Password { get; set; }
+    }
 }
