@@ -4,6 +4,7 @@ using Microsoft.IdentityModel.Tokens;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Text;
+using WarehouseAPI.DTOs	;
 
 [ApiController]
 [Route("[controller]")]
@@ -11,8 +12,8 @@ public class AuthController : ControllerBase
 {
 	private static List<User> users = new()
 	{
-		new User { Id = 1, Username = "admin", Password = "admin1234", Role = "admin" },
-		new User { Id = 2, Username = "stationery", Password = "pass1234", Role = "stationery" }
+		new User { Id = 1, Username = "admin", Password = "admin123", Role = "admin" },
+		new User { Id = 2, Username = "stationery", Password = "pass123", Role = "stationery" }
 	};
 
 	private string key = "supersecretkey_that_is_long_enough_to_be_secure_123!";
@@ -25,7 +26,7 @@ public class AuthController : ControllerBase
 			u.Password == request.Password);
 
 		if (user == null)
-			return Unauthorized();
+            return Unauthorized(ApiResponse<object>.Fail("Invalid username or password"));
 
 		var claims = new[]
 		{
@@ -40,6 +41,12 @@ public class AuthController : ControllerBase
 				new SymmetricSecurityKey(Encoding.UTF8.GetBytes(key)),
 				SecurityAlgorithms.HmacSha256)
 		);
+
+		var tokenString = new JwtSecurityTokenHandler().WriteToken(token);
+
+		var loginResult= new LoginResponseDto(tokenString,user.Username,user.Role);
+
+		var response= ApiResponse<LoginResponseDto>.Success(loginResult,$"{user.Username}, you are logged in as {user.Role}");
 
 		return Ok(new
 		{
