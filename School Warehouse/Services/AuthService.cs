@@ -6,24 +6,25 @@ using System.Text;
 using WarehouseAPI.Data;
 using WarehouseAPI.DTOs;
 using WarehouseAPI.Models;
+using WarehouseAPI.Repositories;
 using Microsoft.EntityFrameworkCore;
 
 namespace WarehouseAPI.Services;
 
 public class AuthService : IAuthService
 {
-    private readonly WarehouseDbContext _context;
+    private readonly IUserRepository _userRepository;
     private readonly IConfiguration _configuration;
 
-    public AuthService(WarehouseDbContext context, IConfiguration configuration)
+    public AuthService(IUserRepository userRepository, IConfiguration configuration)
     {
-        _context = context;
+        _userRepository = userRepository;
         _configuration = configuration;
     }
 
     public async Task<LoginResponseDto?> AuthenticateAsync(Login request)
     {
-        var user = await _context.Users.FirstOrDefaultAsync(u => u.Username == request.Username);
+        var user = await _userRepository.GetUsernameAsync(request.Username);
         if (user == null) return null;
 
         var passwordHasher = new PasswordHasher<User>();
