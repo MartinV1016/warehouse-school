@@ -34,7 +34,6 @@ public class InventoryController : ControllerBase
     [HttpGet]
 	public async Task<IActionResult> GetAll()
     {
-		/*var response = ApiResponse<List<Item>>.Success(inventory,"Inventory retrieved");*/
 		var items=await _inventoryService.GetAllItemsAsync();
 		return Ok(items);
 	}
