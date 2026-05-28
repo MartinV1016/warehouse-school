@@ -10,6 +10,7 @@ using WarehouseAPI.Data;
 using WarehouseAPI.DTOs;
 using WarehouseAPI.Models;
 using WarehouseAPI.Services;
+using Microsoft.AspNetCore.Authorization;
 
 [ApiController]
 [Route("[controller]")]
@@ -39,9 +40,11 @@ public class AuthController : ControllerBase
             return Unauthorized(ApiResponse<object>.Fail("Invalid username or password"));
         }
 
-        var response = ApiResponse<LoginResponseDto>.Success(loginResult, $"{loginResult.Username}, you are logged in as {loginResult.Role}");
+        var response = ApiResponse<LoginResponseDTO>.Success(loginResult, $"{loginResult.Username}, you are logged in as {loginResult.Role}");
 
         return Ok(response);
+
+
 
 
         /*public IActionResult Login(Login request)
@@ -77,5 +80,19 @@ public class AuthController : ControllerBase
             {
                 token = new JwtSecurityTokenHandler().WriteToken(token)
             });*/
+    }
+
+    [HttpPost("register")]
+    [Authorize(Roles ="admin")]
+    public async Task<IActionResult> Register([FromBody] RegisterDTO request)
+    {
+        var isSuccess = await _authService.RegisterAsync(request);
+
+        if (!isSuccess)
+        {
+            return BadRequest(ApiResponse<object>.Fail("Username is taken!"));
+        }
+
+        return Ok(ApiResponse<object>.Success(null, $"User '{request.Username}' registered succesfully as '{request.Role}'."));
     }
 }

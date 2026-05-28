@@ -5,6 +5,7 @@ namespace WarehouseAPI.Services
 {
     public interface IAuthService
     {
-        Task<LoginResponseDto?> AuthenticateAsync(Login request);
+        Task<LoginResponseDTO?> AuthenticateAsync(Login request);
+        Task<bool> RegisterAsync(RegisterDTO request);
     }
 }
