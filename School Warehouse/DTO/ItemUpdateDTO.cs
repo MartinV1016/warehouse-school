@@ -2,7 +2,7 @@ using System.ComponentModel.DataAnnotations;
 
 namespace WarehouseAPI.DTOs
 {
-    public record ItemUpdateDto(
+    public record ItemUpdateDTO(
         string Name,
         string Category,
         int Quantity,

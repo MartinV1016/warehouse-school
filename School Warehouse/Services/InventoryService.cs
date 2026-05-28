@@ -20,7 +20,7 @@ public class InventoryService : IInventoryService
         return await _context.Items.ToListAsync();
     }
 
-    public async Task<Item> CreateItemAsync(ItemCreateDto request)
+    public async Task<Item> CreateItemAsync(ItemCreateDTO request)
     {
         var newItem = new Item
         {
@@ -35,7 +35,7 @@ public class InventoryService : IInventoryService
         return newItem;
     }
 
-    public async Task<Item?> UpdateItemAsync(int id, ItemUpdateDto request)
+    public async Task<Item?> UpdateItemAsync(int id, ItemUpdateDTO request)
     {
         var item = await _context.Items.FirstOrDefaultAsync(i => i.Id == id);
         if (item == null) return null;

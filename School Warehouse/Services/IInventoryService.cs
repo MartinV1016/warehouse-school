@@ -6,7 +6,7 @@ namespace WarehouseAPI.Services;
 public interface IInventoryService
 {
     Task<List<Item>> GetAllItemsAsync();
-    Task<Item> CreateItemAsync(ItemCreateDto request);
-    Task<Item?> UpdateItemAsync(int id, ItemUpdateDto request);
+    Task<Item> CreateItemAsync(ItemCreateDTO request);
+    Task<Item?> UpdateItemAsync(int id, ItemUpdateDTO request);
     Task<bool> DeleteItemAsync(int id);
 }

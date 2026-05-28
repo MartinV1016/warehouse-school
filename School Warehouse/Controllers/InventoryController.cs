@@ -40,7 +40,7 @@ public class InventoryController : ControllerBase
 
 	[HttpPost]
 	[Authorize(Roles="admin")]
-	public async Task<IActionResult> CreateItem([FromBody] ItemCreateDto request)
+	public async Task<IActionResult> CreateItem([FromBody] ItemCreateDTO request)
 	{
 		var newItem = await _inventoryService.CreateItemAsync(request);
 		
@@ -71,7 +71,7 @@ public class InventoryController : ControllerBase
 
 	[HttpPut("{id}")]
 	[Authorize(Roles = "admin")]
-	public async Task<IActionResult> Update(int id, [FromBody] ItemUpdateDto request)
+	public async Task<IActionResult> Update(int id, [FromBody] ItemUpdateDTO request)
 	{
 		var item=await _inventoryService.UpdateItemAsync(id,request);
 		if (item == null)

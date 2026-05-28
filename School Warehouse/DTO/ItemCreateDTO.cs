@@ -1,7 +1,7 @@
 using System.ComponentModel.DataAnnotations;
 namespace WarehouseAPI.DTOs
 {
-    public record ItemCreateDto(
+    public record ItemCreateDTO(
         string Name, 
         string Category,
         int Quantity,
