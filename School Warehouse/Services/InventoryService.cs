@@ -2,22 +2,23 @@ using Microsoft.EntityFrameworkCore;
 using WarehouseAPI.Data;
 using WarehouseAPI.DTOs;
 using WarehouseAPI.Models;
+using WarehouseAPI.Repositories;
 
 namespace WarehouseAPI.Services;
 
 public class InventoryService : IInventoryService
 {
-    private readonly WarehouseDbContext _context;
+    private readonly IItemRepository _itemRepository;
 
-    public InventoryService(WarehouseDbContext context)
+    public InventoryService(IItemRepository itemRepository)
     {
-        _context = context;
+        _itemRepository = itemRepository;
     }
 
-    public async Task<List<Item>> GetAllItemsAsync()
+    public async Task<IEnumerable<Item>> GetAllItemsAsync()
     {
 
-        return await _context.Items.ToListAsync();
+        return await _itemRepository.GetAllAsync();
     }
 
     public async Task<Item> CreateItemAsync(ItemCreateDto request)
@@ -30,14 +31,13 @@ public class InventoryService : IInventoryService
             Location = request.Location
         };
 
-        await _context.Items.AddAsync(newItem);
-        await _context.SaveChangesAsync();
+        await _itemRepository.AddAsync(newItem);
         return newItem;
     }
 
     public async Task<Item?> UpdateItemAsync(int id, ItemUpdateDto request)
     {
-        var item = await _context.Items.FirstOrDefaultAsync(i => i.Id == id);
+        var item = await _itemRepository.GetByIdAsync(id);
         if (item == null) return null;
 
         item.Name = request.Name;
@@ -45,17 +45,16 @@ public class InventoryService : IInventoryService
         item.Quantity = request.Quantity;
         item.Location = request.Location;
 
-        await _context.SaveChangesAsync();
+        await _itemRepository.UpdateAsync(item);
         return item;
     }
 
     public async Task<bool> DeleteItemAsync(int id)
     {
-        var item = await _context.Items.FirstOrDefaultAsync(i => i.Id == id);
+        var item = await _itemRepository.GetByIdAsync(id);
         if (item == null) return false;
 
-        _context.Items.Remove(item);
-        await _context.SaveChangesAsync();
+        await _itemRepository.DeleteAsync(item);
         return true;
     }
 }

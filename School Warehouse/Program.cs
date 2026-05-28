@@ -15,6 +15,7 @@ builder.Services.AddDbContext<WarehouseDbContext>(options =>options.UseSqlServer
 
 builder.Services.AddScoped<IAuthService, AuthService>();
 builder.Services.AddScoped<IUserRepository, UserRepository>();
+builder.Services.AddScoped<IItemRepository, ItemRepository>();
 builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddScoped<IInventoryService, InventoryService>();
