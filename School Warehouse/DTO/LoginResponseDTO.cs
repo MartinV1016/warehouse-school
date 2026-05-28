@@ -1,4 +1,4 @@
 ﻿namespace WarehouseAPI.DTOs
 {
-    public record LoginResponseDto(string Token, string Username, string Role);
+    public record LoginResponseDTO(string Token, string Username, string Role);
 }

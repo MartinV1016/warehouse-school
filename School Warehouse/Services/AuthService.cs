@@ -9,6 +9,7 @@ using WarehouseAPI.Models;
 using WarehouseAPI.Repositories;
 using Microsoft.EntityFrameworkCore;
 
+
 namespace WarehouseAPI.Services;
 
 public class AuthService : IAuthService
@@ -22,7 +23,7 @@ public class AuthService : IAuthService
         _configuration = configuration;
     }
 
-    public async Task<LoginResponseDto?> AuthenticateAsync(Login request)
+    public async Task<LoginResponseDTO?> AuthenticateAsync(Login request)
     {
         var user = await _userRepository.GetUsernameAsync(request.Username);
         if (user == null) return null;
@@ -51,6 +52,26 @@ public class AuthService : IAuthService
 
         var tokenString = new JwtSecurityTokenHandler().WriteToken(token);
 
-        return new LoginResponseDto(tokenString, user.Username, user.Role);
+        return new LoginResponseDTO(tokenString, user.Username, user.Role);
+    }
+
+    public async Task<bool> RegisterAsync(RegisterDTO request)
+    {
+        var existingUser = await _userRepository.GetUsernameAsync(request.Username);
+        if (existingUser != null) return false;
+
+        var newUser = new User
+        {
+            Username = request.Username,
+            Role = request.Role
+
+
+        };
+
+        var passwordHasher = new PasswordHasher<User>();
+        newUser.PasswordHash = passwordHasher.HashPassword(newUser, request.Password);
+
+        await _userRepository.AddAsync(newUser);
+        return true;
     }
 }
